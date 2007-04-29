@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+
+	<head>
+		<meta http-equiv="Content-Type" content="text/xhtml+xml; charset=UTF-8" />
+		<meta http-equiv="Content-Style-Type" content="text/css" />
+		<meta http-equiv="Content-Script-Type" content="text/javascript" />
+		<title>MailHeaderDump Specification</title>
+		<!-- Copyright (c) 2006 John A. Thywissen. All rights reserved. -->
+	</head>
+
+	<body>
+		<h1>MailHeaderDump Specification</h1>
+		<p><i>John A. Thywissen, 17 Mar 2006</i></p>
+		<h2><a name="purpose"></a>Purpose</h2>
+		<p>The <cite>MailHeaderDump Specification</cite> describes the function of the MailHeaderDump software application product. The specification is intended for end users of the product and people interested in the methods used to gather the data that the product captures.</p>
+		<h2><a name="scope"></a>Scope</h2>
+		<p>This specification applies to version 1.0 of the <code>MailHeaderDump.jar</code> Java archive (JAR) file.</p>
+		<p>MailHeaderDump collects attributes of mail messages that reside in a user's server-based message store for later analysis. The product does not collect data on a local message store, nor does it &quot;intercept&quot; all traffic flowing through a mailbox. It only takes a &quot;snapshot&quot; of the state of a message store at a particular time. It also does not perform any analysis.</p>
+		<p>The product is intended to be used as a data collection tool in a study of e-mail behavior.</p>
+		<p>This product was developed as part of the <a href="http://engr.smu.edu/emis/sys/courses/emis7370.htm">EMIS 7370, Probability and Statistics for Scientists and Engineers</a>, course at <a href="http://www.smu.edu/">S.M.U.</a> as part of the <a href="http://engr.smu.edu/emis/Executive_Programs/EMSEM/emsem.html">M.S.E.M. program</a>.</p>
+		<h2><a name="overview"></a>Overview</h2>
+		<p>MailHeaderDump performs one basic function: it connects to a server-based message store, traverses the stores structure, and records attributes of all messages located in the store to a data file.</p>
+		<p>The product has four interfaces:</p>
+		<ol>
+			<li>The user interface: To gather operation parameters from the end user</li>
+			<li>The message store access protocol: To access and retrieve messages</li>
+			<li>The file output format: To record the observed messages' attributes</li>
+			<li>Platform API: For file I/O and preferences persistence services</li>
+		</ol>
+		<h2><a name="userInterface"></a>User Interface</h2>
+		<p>The user interface gathers operation parameters from the end user. It is in the form of a main window (Java <code>JFrame</code>) with the following components:</p>
+		<ol>
+			<li>Version label: Static text identifying the application and its version.</li>
+			<li>&quot;Mail server URL&quot; text box: A mail store URL, in the form of &quot;<kbd>imap://username@mail.example.com</kbd>&quot;.  &quot;<kbd>imap</kbd>&quot; is the mail server access protocol, either &quot;<kbd>imap</kbd>&quot; or &quot;<kbd>pop</kbd>&quot;.  &quot;<kbd>username</kbd>&quot; is the username string used to access the message store on the mail server. &quot;<kbd>mail.example.com</kbd>&quot; is the hostname of the server on which the message store resides.</li>
+			<li>&quot;Output file prefix&quot; text box: A file name or file path to prefix to the file name of the output file.  MailHeaderDump will add the username, at date-time group, and a &quot;<code>.txt</code>&quot; suffix to the prefix given here.  File paths can be specified here, for example &quot;<kbd>/Users/username/Desktop/MHD-</kbd>&quot;  (UNIX-style) or &quot;<kbd>D:\Documents and Settings\username\My Documents\MHD-</kbd>&quot; (Windows-style).</li>
+			<li>Three &quot;Hash&quot; checkboxes, labeled &quot;Hash addresses&quot;, &quot;Hash subjects&quot;, and &quot;Hash message IDs&quot;: Selecting one of these checkboxes results in that mail message field being obscured by a hash function. The <a href="#hashFunction">hash function</a> is described below. This preserves the user's privacy, if desired.</li>
+			<li>&quot;Start&quot; button: Pressing this button causes MailHeaderDump to start its <a href="#productFunctions">operation</a> (detailed below).</li>
+		</ol>
+		<p>During the connection to the message store, an authentication window will open and request the user's username and password for the message store server.</p>
+		<h2><a name="messageStoreAccessProtocol"></a>Message Store Access Protocol</h2>
+		<p>MailHeaderDump 1.0 incorporates JavaMail 1.3.3, and relies upon it to provide message store access services. JavaMail 1.3.3 provides access to message stores via the <a href="http://www.ietf.org/rfc/rfc1730.txt">IMAP4</a>, <a href="http://www.ietf.org/rfc/rfc3501.txt">IMAP4rev1</a>, and <a href="http://www.ietf.org/rfc/rfc1939.txt">POP3</a> protocols. Note, however, that MailHeaderDump 1.0 has only been tested using the IMAP protocol. For more information on JavaMail, see <a href="http://java.sun.com/products/javamail/">http://java.sun.com/products/javamail/</a>.</p>
+		<h2><a name="fileOutputFormat"></a>File Output Format</h2>
+		<p>MailHeaderDump writes a single text file, with one message per line, and the TAB character used as a field separator. This file format is intended to be easy to import into Microsoft Excel. The file is written using the platform default encoding and the platform default line separator. This corresponds to Excel's behavior.</p>
+		<p>Each line in the file contains the following fields:</p>
+		<ol>
+			<li>Message-ID, or the hash of the Message-ID.</li>
+			<li>Sent date, in yyyy-MM-dd HH:mm:ss format, using <a href="http://www.bipm.org/en/scientific/tai/time_server.html">UTC (coordinated universal time)</a> time zone.</li>
+			<li>Received date, in yyyy-MM-dd HH:mm:ss format, using <a href="http://www.bipm.org/en/scientific/tai/time_server.html">UTC (coordinated universal time)</a> time zone.</li>
+			<li>Count of &quot;From&quot; addresses (normally one).</li>
+			<li>Count of &quot;From&quot; addresses that are in the same domain as the mail store. For example, if the mail store is on a server &quot;<code>mail.example.com</code>&quot;, this field counts addresses ending in &quot;<code>example.com</code>&quot;. This only compares first and second level domains. For example, &quot;<code>a.b.c.d</code>&quot; matches &quot;<code>x.y.c.d</code>&quot;.</li>
+			<li>A comma-seperated list of &quot;From&quot; addresses (<a href="http://www.ietf.org/rfc/rfc2822.txt">RFC 2822</a> format), or a hash of each address.</li>
+			<li>Count of &quot;To&quot; addresses.</li>
+			<li>Count of &quot;To&quot; addresses that are in the same domain as the mail store. This only compares first and second level domains.</li>
+			<li>A comma-seperated list of &quot;To&quot; addresses (<a href="http://www.ietf.org/rfc/rfc2822.txt">RFC 2822</a> format), or a hash of each address.</li>
+			<li>Count of &quot;Cc&quot; addresses.</li>
+			<li>Count of &quot;Cc&quot; addresses that are in the same domain as the mail store. This only compares first and second level domains.</li>
+			<li>A comma-seperated list of &quot;Cc&quot; addresses (<a href="http://www.ietf.org/rfc/rfc2822.txt">RFC 2822</a> format), or a hash of each address.</li>
+			<li>Count of &quot;Reply-to&quot; addresses (normally one). If a &quot;Reply-to&quot; address is not supplied in the message, the &quot;From&quot; address is used.</li>
+			<li>Count of &quot;Reply-to&quot; addresses that are in the same domain as the mail store. This only compares first and second level domains.</li>
+			<li>A comma-seperated list of &quot;Reply-to&quot; addresses (<a href="http://www.ietf.org/rfc/rfc2822.txt">RFC 2822</a> format), or a hash of each address.</li>
+			<li>Subject, or hash of the Subject, with all &quot;Re:&quot;, &quot;Fwd:, and &quot;FW:&quot; prefixes stripped.</li>
+			<li>Host name of the message store server.</li>
+			<li>Username of this message store.</li>
+			<li>Full name of the folder, including the path to the folder for folders inside folders.</li>
+			<li>Seen flag, set on messages that have been read.</li>
+			<li>Answered flag, set on messages that have been replied to. Note: this is not used by all message store servers.</li>
+			<li>Flagged flag, set on messages flagged for special handling. Note: this is not used by all message store servers.</li>
+			<li>Draft flag, set on unsent drafts of outbound messages. Note: this is not used by all message store servers.</li>
+			<li>Size of the message in bytes.</li>
+			<li>&quot;Importance&quot; field, if set in the message.</li>
+			<li>&quot;X-MS-Has-Attach&quot; field, which is used by some message store servers to indicate if the message contains an attachment.</li>
+			<li>An empty field, for future use.</li>
+		</ol>
+		<p>The &quot;hash&quot; of data in a field is produced via the process described in <cite><a href="#hashFunction">Hash Function</a></cite> below.</p>
+		<h2><a name="productFunctions"></a>Product Functions</h2>
+		<p>MailHeaderDump performs the following actions when executed:</p>
+		<ol>
+			<li>Initialize the debug logging facility.</li>
+			<li>Initialize the user interface facility.</li>
+			<li>Read the previous state of the user interface selections from the platform's preferences.</li>
+			<li>Present the main window to the user.</li>
+			<li>Wait for the user to set the parameters in the main window and press the Start button.</li>
+			<li>Disable any further user input to the main window.</li>
+			<li>Save the state of the user interface selections to the platform's preferences.</li>
+			<li>Open the output file. The file name is the user supplied prefix, plus the username, plus a hyphen, plus the current date and time in the form yyyyMMddHHmmss, plus &quot;.txt&quot;.</li>
+			<li>Connect to the server-based message store specified by the user in the mail server URL.  During the opening of this connection, an authentication window is presented to request a username and password to use to gain access to the message store.</li>
+			<li>Starting with the message store's default folder, traverse the hierarchy of folders below it (depth-first traversal). For each folder, perform the following:</li>
+			<li>If the folder name is &quot;Calendar&quot;, &quot;Contacts&quot;, or &quot;Tasks&quot;, skip it.</li>
+			<li>Iterate across all messages in the folder, and write the message attributes to a record in the output file.  See <cite><a href="#fileOutputFormat">File Output Format</a></cite> for the attributes captured.</li>
+			<li>Move to the next folder, repeating steps 11 &amp; 12, until all folders have been processed.</li>
+			<li>Close the connection to the message store.</li>
+			<li>Close the output file.</li>
+			<li>Close the main window.</li>
+			<li>Exit.</li>
+		</ol>
+		<h2><a name="hashFunction"></a>Hash Function</h2>
+		<p>A &quot;hash&quot; or message digest encodes a string into a &quot;fingerprint&quot; that is nearly unique for the input byte sequence, but does not reveal the contents of the input. For example &quot;secret&quot; might always digest into &quot;123&quot;, but there is no way to decode &quot;123&quot; to &quot;secret&quot;. However, if one knows two input strings resulted in the same fingerprint (both &quot;123&quot;), then they are very probably the same input strings.</p>
+		<p>MailHeaderDump can output several fields in a hashed form, at the user's option. These are processed as follows:</p>
+		<ol>
+			<li>For addresses, only the addr-spec address (part in angle brackets, ignoring recipient name) is used.</li>
+			<li>The case is normalized (upper case for subjects, lower case for addresses and message-IDs).</li>
+			<li>The resulting character string is rendered in the <a href="http://www.ietf.org/rfc/rfc3629.txt">UTF-8 encoding</a> and processed using the <a href="http://www.ietf.org/rfc/rfc1321.txt">MD5 message digest algorithm</a>.</li>
+			<li>The resulting 128 bit message digest is treated as an unsigned integer and output in base 32, using digits 0-9 and a-v.</li>
+		</ol>
+		<h2><a name="assumptionsAndDependencies"></a>Assumptions and Dependencies</h2>
+		<ol>
+			<li>Assumption: Mail messages of interest reside in a server-based message store, accessible via the IMAP4 protocol.</li>
+			<li>Assumption: Output file is to be read into Microsoft Excel.</li>
+			<li>Assumption: The 26 data elements noted in <cite><a href="#fileOutputFormat">File Output Format</a></cite>, above, are sufficient.</li>
+			<li>Assumption: User to mail store server connection is over a secured channel, such as a VPN tunnel or physically secure network link, because mail data and authentication credentials are transmitted in the clear.</li>
+			<li>Dependency: Java SE, version 1.4, installed in user environment.</li>
+			<li>Dependency: JavaMail 1.3.3 (and therefore JAF 1.0.2), bundled in <code>MailHeaderDump.jar</code>.</li>
+		</ol>
+	</body>
+
+</html>

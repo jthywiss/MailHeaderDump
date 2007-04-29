@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE jnlp PUBLIC "-//Sun Microsystems, Inc//DTD JNLP Descriptor 6.0//EN" "http://java.sun.com/dtd/jnlp_6_0.dtd">
+<!-- mail.jnlp - Java Network Launching Protocol file for JavaMail -->
+<jnlp spec="1.0+" version="1.3.3" codebase="http://john.thywissen.org/mailheaderdump/" href="mail.jnlp">
+	<information>
+		<title>JavaMail</title>
+		<vendor>Sun Microsystems, Inc.</vendor>
+		<homepage href="http://java.sun.com/products/javamail/" />
+		<description kind="short">The JavaMail API provides a platform-independent and protocol-independent framework to build mail and messaging applications. The JavaMail API is implemented as a Java platform optional package and is also available as part of the Java platform, Enterprise Edition.</description>
+		<offline-allowed/>
+	</information>
+	<security>
+		<j2ee-application-client-permissions/>
+	</security>
+	<resources>
+		<j2se version="1.4+"/>
+		<jar href="mail.jar" size="355030"/>
+		<jar href="activation.jar" size="55147"/>
+	</resources>
+	<component-desc/>
+</jnlp>

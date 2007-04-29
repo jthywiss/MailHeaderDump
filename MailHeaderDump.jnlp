@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE jnlp PUBLIC "-//Sun Microsystems, Inc//DTD JNLP Descriptor 6.0//EN" "http://java.sun.com/dtd/jnlp_6_0.dtd">
+<!-- MailHeaderDump.jnlp - Java Network Launching Protocol file for MailHeaderDump
+	Project MailHeaderDump
+
+	Created by John Thywissen on 26 Mar 2006
+
+	Copyright (c) 2006 John Thywissen. All rights reserved.
+
+	            - - -  PROPRIETARY  - - -
+	This work, and the information within, are 
+	proprietary property of John Thywissen.  Use
+	or duplication requires prior written permission.
+-->
+<jnlp spec="1.0+" version="1.0" codebase="http://john.thywissen.org/mailheaderdump/" href="MailHeaderDump.jnlp">
+	<information>
+		<title>Mail Header Dump</title>
+		<vendor>John Thywissen</vendor>
+		<homepage href="index.html" />
+		<description kind="one-line">For all mail messages on a server, record attributes into a text file.</description>
+		<description kind="short">MailHeaderDump collects attributes of mail messages that reside in a user's server-based message store for later analysis.  The product does not collect data on a local message store, nor does it "intercept" all traffic flowing through a mailbox.  It only takes a "snapshot" of the state of a message store at a particular time. It also does not perform any analysis.  The product is intended to be used as a data collection tool in a study of e-mail behavior.</description>
+		<description kind="tooltip">Record mail message attributes into a text file.</description>
+		<offline-allowed/>
+		<related-content href="MailHeaderDump_spec.html">
+			<title>Specification</title>
+			<description>Information about how MailHeaderDump operates, and its output format.</description>
+		</related-content>
+		<related-content href="mailto:john.thywissen@eds.com">
+			<title>Message to J^T</title>
+			<description>Send e-mail to the author of MailHeaderDump.</description>
+		</related-content>
+	</information>
+	<security>
+		<all-permissions/>
+	</security>
+	<update check="timeout" policy="prompt-update"/>
+	<resources>
+		<j2se version="1.4+">
+		</j2se>
+		<jar href="MailHeaderDump.jar" main="true" download="eager" size="42012"/>
+		<extension name="JavaMail" href="mail.jnlp"/>
+	</resources>
+	<application-desc main-class="org.thywissen.john.mailheaderdump.MailHeaderDump">
+	</application-desc>
+</jnlp>
